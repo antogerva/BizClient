@@ -1,13 +1,16 @@
 import java.io.*;
 import java.net.*;
+import java.util.Observable;
 
-public class ClientUDP {
+import utils.SeqNumGeneratorUtil;
+
+public class ClientUDP extends Observable{
     public static void main(String[] args) throws IOException {
         int portSender=51424;
         int portReceiver=51425;
 
         DatagramSocket clientSocket = new DatagramSocket(portReceiver);
-        InetAddress IPAddress = InetAddress.getByName("localhost");
+        InetAddress ipAddress = InetAddress.getByName("localhost");
 
         byte[] sendData = new byte[1024];
         byte[] receiveData = new byte[1024];
@@ -18,34 +21,27 @@ public class ClientUDP {
         //TODO: use an interface to convert what is sended.
         
         boolean isDone = false;
-        int maxMod = 5;
+        int maxMod = 2;
 
         while(!isDone){            
             if(count%maxMod==0){
-                dataToSend=parseParams(new String[]{"client", "unpause"});
+                //dataToSend=parseParams(new String[]{"client", "unpause"});
+                //dataToSend=parseParams(new String[]{"client", "pause"});
+                //dataToSend=parseParams(new String[]{"client", "speedmode", "int", "100"});
+                dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"","emu", "frameadvance"});
                 count++;
             } else if(count%maxMod==1) {
-                dataToSend=parseParams(new String[]{"emu", "frameadvance"});
-                count++;
-            } else if(count%maxMod==2) {
-                dataToSend=parseParams(new String[]{"client", "speedmode", "int", "100"});
-                count++;
-            } else if(count%maxMod==3) {
-                dataToSend=parseParams(new String[]{"client", "pause"});
-                count++;
-            } else if(count%maxMod==4) {
-                dataToSend=parseParams(new String[]{"gui", "drawText", "luaarray", "{10,10,'TotalCount: "+totalCount+"'}"});
+                dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"", "gui", "drawText", "luaarray", "{10,10,'TotalCount: "+totalCount+"'}"});
                 count++;
             }
             if(count==(maxMod*1)+1) {
                 dataToSend="send";
                 totalCount+=count;
                 count=0;
-            }
-            
+            }            
             sendData = dataToSend.getBytes();
             
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, portSender);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ipAddress, portSender);
             System.out.println("sending "+dataToSend);
             clientSocket.send(sendPacket);
             System.out.println("sended "+dataToSend);
