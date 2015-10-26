@@ -1,6 +1,6 @@
 package channel;
 
-import gui.Window;
+import obs.IObserver;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,14 +9,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
-public class ClientRunner extends Observable implements Runnable {
+public class ClientRunner implements Runnable {
     private DatagramSocket clientSocket=null;
     private InetAddress inetAddress = null;
     private String remoteIp;
     private int remotePort;
     private List<String> fifo = new ArrayList<>();
+    private List<IObserver> lstObserver = new ArrayList<IObserver>();
 
     public ClientRunner(DatagramSocket clientSocket, String remoteIp, int remotePort) {
         this.clientSocket = clientSocket;
@@ -28,11 +28,17 @@ public class ClientRunner extends Observable implements Runnable {
             e.printStackTrace();
         }
     }
-
-    public void addObserver(Window window){
-        super.addObserver(window);
+    
+    public void addObserver(IObserver obs){
+        //super.addObserver(obs);
+        lstObserver.add(obs);
     }
-
+    public void notifyObservers(Object eventObj){
+        for(IObserver obs : lstObserver) {
+            obs.update(this, eventObj);
+        }
+    } 
+    
     public void run() {
         processClient();
     }
@@ -64,8 +70,10 @@ public class ClientRunner extends Observable implements Runnable {
         try {
             String eventValue = null;
             while ((eventValue = receivePacket()) != null){
-                System.out.println("Received event from server: "+eventValue);
-                super.notifyObservers(eventValue);
+                System.out.println("receiving data");
+                System.out.println("FROM SERVER: "+eventValue);
+                //super.notifyObservers(eventValue);
+                notifyObservers(eventValue);
             }                
         } catch (Exception e) {
             e.printStackTrace();

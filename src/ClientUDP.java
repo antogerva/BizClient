@@ -31,7 +31,8 @@ public class ClientUDP extends Observable{
                 dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"","emu", "frameadvance"});
                 count++;
             } else if(count%maxMod==1) {
-                dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"", "gui", "drawText", "luaarray", "{10,10,'TotalCount: "+totalCount+"'}"});
+                dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"","emu", "frameadvance"});
+                //dataToSend=parseParams(new String[]{SeqNumGeneratorUtil.getNumber()+"", "gui", "drawText", "luaarray", "{10,10,'TotalCount: "+totalCount+"'}"});
                 count++;
             }
             if(count==(maxMod*1)+1) {
@@ -53,6 +54,7 @@ public class ClientUDP extends Observable{
             System.out.println("FROM SERVER: " + newData);           
         }
         System.out.println("Closing connection.");
+        System.out.println("TotalCount: "+totalCount);
         clientSocket.close();
     }
     
